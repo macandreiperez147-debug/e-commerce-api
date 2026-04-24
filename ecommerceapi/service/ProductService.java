@@ -6,6 +6,23 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing Product data.
+ *
+ * IN-MEMORY STORAGE APPROACH:
+ * - Uses ArrayList<Product> as a temporary storage (simulated database).
+ * - Data is stored only in memory, NOT in a real database.
+ * - When the application stops, all data is lost.
+ * - Used for learning CRUD operations without database setup.
+ *
+ * This class handles all business logic including:
+ * - Create
+ * - Read
+ * - Update
+ * - Delete
+ * - Filtering
+ */
+
 @Service
 public class ProductService {
 
