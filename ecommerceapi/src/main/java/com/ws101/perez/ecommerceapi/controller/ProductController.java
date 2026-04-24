@@ -14,22 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ws101.perez.ecommerceapi.exception.ProductNotFoundException;
 import com.ws101.perez.ecommerceapi.model.Product;
 import com.ws101.perez.ecommerceapi.service.ProductService;
 
-/*
-Task 4.3 - Request/Response Handling
-
-@RequestBody  - Used to receive JSON data from client (POST, PUT, PATCH)
-@PathVariable - Used to extract values from URL (e.g., /products/{id})
-@RequestParam - Used to read query parameters (filterType, filterValue)
-
-ResponseEntity - Used to control HTTP response:
-- 200 OK (successful GET, PUT, PATCH)
-- 201 CREATED (POST)
-- 204 NO CONTENT (DELETE)
-- 404 NOT FOUND (resource not found)
-*/
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -47,45 +36,66 @@ public class ProductController {
         return ResponseEntity.ok(service.getAll());
     }
 
-    // GET product by ID
+    // GET by ID
     @GetMapping("/{id}")
     public ResponseEntity<Product> getById(@PathVariable int id) {
         Product p = service.getById(id);
-        if (p == null) return ResponseEntity.notFound().build();
+
+        if (p == null) {
+            throw new ProductNotFoundException("Product with ID " + id + " not found");
+        }
+
         return ResponseEntity.ok(p);
     }
 
-    // POST create new product
+    // CREATE product
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product) {
+    public ResponseEntity<Product> create(@Valid @RequestBody Product product) {
         Product created = service.create(product);
+
         return ResponseEntity
                 .status(201)
                 .header("Location", "/api/v1/products/" + created.getId())
                 .body(created);
     }
 
-    // PUT replace entire product
+    // UPDATE product
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable int id, @RequestBody Product product) {
+    public ResponseEntity<Product> update(@PathVariable int id,
+                                         @Valid @RequestBody Product product) {
+
         Product updated = service.update(id, product);
-        if (updated == null) return ResponseEntity.notFound().build();
+
+        if (updated == null) {
+            throw new ProductNotFoundException("Product with ID " + id + " not found");
+        }
+
         return ResponseEntity.ok(updated);
     }
 
-    // PATCH partially update product
+    // PATCH product
     @PatchMapping("/{id}")
-    public ResponseEntity<Product> patch(@PathVariable int id, @RequestBody Product product) {
+    public ResponseEntity<Product> patch(@PathVariable int id,
+                                        @RequestBody Product product) {
+
         Product updated = service.patch(id, product);
-        if (updated == null) return ResponseEntity.notFound().build();
+
+        if (updated == null) {
+            throw new ProductNotFoundException("Product with ID " + id + " not found");
+        }
+
         return ResponseEntity.ok(updated);
     }
 
     // DELETE product
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
-        if (service.delete(id)) return ResponseEntity.noContent().build();
-        return ResponseEntity.notFound().build();
+
+        if (!service.delete(id)) {
+            throw new ProductNotFoundException("Product with ID " + id + " not found");
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     // FILTER products

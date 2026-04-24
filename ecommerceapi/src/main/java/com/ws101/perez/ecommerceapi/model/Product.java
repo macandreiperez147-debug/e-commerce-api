@@ -1,13 +1,30 @@
 package com.ws101.perez.ecommerceapi.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 public class Product {
 
     private Integer id;
+
+    @NotBlank(message = "Product name is required")
+    @Size(min = 3, message = "Product name must be at least 3 characters")
     private String name;
+
+    @NotBlank(message = "Description is required")
     private String description;
+
+    @Positive(message = "Price must be greater than 0")
     private double price;
+
+    @NotBlank(message = "Category is required")
     private String category;
+
+    @Min(value = 0, message = "Stock cannot be negative")
     private int stock;
+
     private String imageUrl;
 
     public Product() {}
@@ -23,6 +40,7 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
+    // getters and setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
