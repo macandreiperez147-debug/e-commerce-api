@@ -13,10 +13,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.persistence.EntityNotFoundException;
 
+/**
+ * Global exception handler for REST API.
+ * Returns structured JSON error responses.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 404 - Entity Not Found
+    /**
+     * 404 - Entity not found
+     */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(EntityNotFoundException ex) {
 
@@ -29,7 +35,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // 400 - Bad Request
+    /**
+     * 400 - Bad request (invalid input)
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException ex) {
 
@@ -42,7 +50,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 400 - Validation
+    /**
+     * 400 - Validation errors (@Valid)
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
 
@@ -63,7 +73,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 400 - Database Error
+    /**
+     * 400 - Database constraint errors
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDatabase(DataIntegrityViolationException ex) {
 
@@ -76,7 +88,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 500 - General Error
+    /**
+     * 500 - Fallback for all other errors
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
 
