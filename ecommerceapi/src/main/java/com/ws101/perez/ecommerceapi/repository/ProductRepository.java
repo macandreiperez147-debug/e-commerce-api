@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.ws101.perez.ecommerceapi.model.Product;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByCategory_Name(String name);
+public interface ProductRepository extends JpaRepository<Product, Integer> {
+
+    List<Product> findByCategory_NameIgnoreCase(String name);
+
+    List<Product> findByNameContainingIgnoreCase(String name);
 }

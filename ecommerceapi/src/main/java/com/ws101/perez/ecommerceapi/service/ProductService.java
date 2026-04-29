@@ -8,13 +8,7 @@ import com.ws101.perez.ecommerceapi.model.Product;
 import com.ws101.perez.ecommerceapi.repository.ProductRepository;
 
 /**
- * Service class for product-related operations.
- *
- * Uses Spring Data JPA to interact with the database instead of in-memory storage.
- *
- * @author Mac Andrei Perez
- * Collaborator: Angelica Naza
- * @since 2026
+ * Service layer for Product (JPA version).
  */
 @Service
 public class ProductService {
@@ -25,31 +19,19 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    /**
-     * Retrieves all products from database.
-     */
     public List<Product> getAll() {
         return productRepository.findAll();
     }
 
-    /**
-     * Retrieves a product by ID.
-     */
     public Product getById(Integer id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    /**
-     * Creates a new product.
-     */
     public Product create(Product product) {
         return productRepository.save(product);
     }
 
-    /**
-     * Updates an existing product.
-     */
     public Product update(Integer id, Product newProduct) {
         Product existing = getById(id);
 
@@ -57,9 +39,6 @@ public class ProductService {
         return productRepository.save(newProduct);
     }
 
-    /**
-     * Partially updates a product.
-     */
     public Product patch(Integer id, Product update) {
         Product existing = getById(id);
 
@@ -73,10 +52,25 @@ public class ProductService {
         return productRepository.save(existing);
     }
 
-    /**
-     * Deletes a product by ID.
-     */
     public void delete(Integer id) {
         productRepository.deleteById(id);
+    }
+
+    /**
+     * REQUIRED for controller filtering
+     */
+    public List<Product> filter(String type, String value) {
+
+        switch (type.toLowerCase()) {
+
+            case "category":
+                return productRepository.findByCategory_NameIgnoreCase(value);
+
+            case "name":
+                return productRepository.findByNameContainingIgnoreCase(value);
+
+            default:
+                throw new RuntimeException("Invalid filter type: " + type);
+        }
     }
 }
