@@ -1,12 +1,28 @@
 package com.ws101.perez.ecommerceapi.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Represents a product in the e-commerce system.
+ *
+ * Each Product belongs to one Category (Many-to-One relationship).
+ */
+@Entity
+@Table(name = "products")
 public class Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotBlank(message = "Product name is required")
@@ -19,8 +35,13 @@ public class Product {
     @Positive(message = "Price must be greater than 0")
     private double price;
 
-    @NotBlank(message = "Category is required")
-    private String category;
+    /**
+     * The category this product belongs to.
+     * Many Products → One Category.
+     */
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Min(value = 0, message = "Stock cannot be negative")
     private int stock;
@@ -30,7 +51,7 @@ public class Product {
     public Product() {}
 
     public Product(Integer id, String name, String description, double price,
-                   String category, int stock, String imageUrl) {
+                   Category category, int stock, String imageUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -40,7 +61,7 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    // getters and setters
+    // Getters and Setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -53,8 +74,8 @@ public class Product {
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 
     public int getStock() { return stock; }
     public void setStock(int stock) { this.stock = stock; }
