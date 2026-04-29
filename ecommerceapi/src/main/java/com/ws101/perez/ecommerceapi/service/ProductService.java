@@ -7,9 +7,8 @@ import org.springframework.stereotype.Service;
 import com.ws101.perez.ecommerceapi.model.Product;
 import com.ws101.perez.ecommerceapi.repository.ProductRepository;
 
-/**
- * Service layer for Product (JPA version).
- */
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class ProductService {
 
@@ -25,7 +24,7 @@ public class ProductService {
 
     public Product getById(Integer id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
 
     public Product create(Product product) {
@@ -34,7 +33,6 @@ public class ProductService {
 
     public Product update(Integer id, Product newProduct) {
         Product existing = getById(id);
-
         newProduct.setId(existing.getId());
         return productRepository.save(newProduct);
     }
@@ -53,24 +51,20 @@ public class ProductService {
     }
 
     public void delete(Integer id) {
+        if (!productRepository.existsById(id)) {
+            throw new EntityNotFoundException("Product not found");
+        }
         productRepository.deleteById(id);
     }
 
-    /**
-     * REQUIRED for controller filtering
-     */
     public List<Product> filter(String type, String value) {
-
         switch (type.toLowerCase()) {
-
             case "category":
                 return productRepository.findByCategory_NameIgnoreCase(value);
-
             case "name":
                 return productRepository.findByNameContainingIgnoreCase(value);
-
             default:
-                throw new RuntimeException("Invalid filter type: " + type);
+                throw new IllegalArgumentException("Invalid filter type");
         }
     }
 }

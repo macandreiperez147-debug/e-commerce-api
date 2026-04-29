@@ -3,16 +3,22 @@ package com.ws101.perez.ecommerceapi.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ws101.perez.ecommerceapi.model.Product;
 import com.ws101.perez.ecommerceapi.service.ProductService;
 
 import jakarta.validation.Valid;
 
-/**
- * REST Controller for Product API (Database version).
- */
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {
@@ -45,13 +51,13 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@PathVariable Integer id,
-                                         @Valid @RequestBody Product product) {
+                                          @Valid @RequestBody Product product) {
         return ResponseEntity.ok(service.update(id, product));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Product> patch(@PathVariable Integer id,
-                                        @RequestBody Product product) {
+                                         @RequestBody Product product) {
         return ResponseEntity.ok(service.patch(id, product));
     }
 

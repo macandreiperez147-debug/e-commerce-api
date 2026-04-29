@@ -11,16 +11,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * Global exception handler for REST API.
- * Handles all application errors and returns structured JSON responses.
- */
+import jakarta.persistence.EntityNotFoundException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 404 - Product Not Found (Custom Exception)
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleProductNotFound(ProductNotFoundException ex) {
+    // 404 - Entity Not Found
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(EntityNotFoundException ex) {
 
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
@@ -31,7 +29,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // 400 - Illegal Argument
+    // 400 - Bad Request
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException ex) {
 
@@ -44,9 +42,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 400 - Validation Errors (@Valid)
+    // 400 - Validation
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationError(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
 
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
@@ -65,22 +63,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 400 - Database Constraint Violation
+    // 400 - Database Error
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleDatabaseError(DataIntegrityViolationException ex) {
+    public ResponseEntity<Map<String, Object>> handleDatabase(DataIntegrityViolationException ex) {
 
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
         error.put("status", 400);
         error.put("error", "DATABASE ERROR");
-        error.put("message", "Data integrity violation (check relationships or constraints)");
+        error.put("message", "Data integrity violation");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 500 - Generic Error (Fallback)
+    // 500 - General Error
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneralError(Exception ex) {
+    public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
 
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
