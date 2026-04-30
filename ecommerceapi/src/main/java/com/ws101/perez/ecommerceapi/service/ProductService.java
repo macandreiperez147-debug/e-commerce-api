@@ -82,6 +82,7 @@ public class ProductService {
     }
 
     /**
+     * 
      * Filter products using database queries.
      */
     public List<Product> filter(String type, String value) {

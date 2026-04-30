@@ -2,6 +2,8 @@ package com.ws101.perez.ecommerceapi.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -32,6 +34,7 @@ public class Category {
      * One Category → Many Products.
      */
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore   // prevents infinite loop
     private List<Product> products;
 
     public Category() {}
