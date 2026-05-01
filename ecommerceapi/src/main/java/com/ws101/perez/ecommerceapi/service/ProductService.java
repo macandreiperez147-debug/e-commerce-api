@@ -4,87 +4,99 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.ws101.perez.ecommerceapi.model.Category;
 import com.ws101.perez.ecommerceapi.model.Product;
+import com.ws101.perez.ecommerceapi.repository.CategoryRepository;
 import com.ws101.perez.ecommerceapi.repository.ProductRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
-/**
- * Service layer for Product using Spring Data JPA.
- */
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository,
+                          CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
-    /**
-     * Get all products from database.
-     */
+    // GET ALL
     public List<Product> getAll() {
         return productRepository.findAll();
     }
 
-    /**
-     * Get product by ID.
-     * Throws 404 if not found.
-     */
-    public Product getById(Integer id) {
+    // GET BY ID
+    public Product getById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
 
-    /**
-     * Create new product.
-     */
+    // CREATE (FIXED - IMPORTANT PART)
     public Product create(Product product) {
+
+        Long categoryId = product.getCategory().getId();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+        product.setCategory(category);
+
         return productRepository.save(product);
     }
 
-    /**
-     * Update entire product.
-     */
-    public Product update(Integer id, Product newProduct) {
+    // UPDATE (FULL REPLACE)
+    public Product update(Long id, Product newProduct) {
+
         Product existing = getById(id);
+
         newProduct.setId(existing.getId());
+
         return productRepository.save(newProduct);
     }
 
-    /**
-     * Partial update (PATCH).
-     */
-    public Product patch(Integer id, Product update) {
+    // PATCH (SAFE VERSION)
+    public Product patch(Long id, Product update) {
+
         Product existing = getById(id);
 
-        if (update.getName() != null) existing.setName(update.getName());
-        if (update.getDescription() != null) existing.setDescription(update.getDescription());
-        if (update.getImageUrl() != null) existing.setImageUrl(update.getImageUrl());
-        if (update.getCategory() != null) existing.setCategory(update.getCategory());
+        if (update.getName() != null)
+            existing.setName(update.getName());
 
-        // NOTE: primitive fields cannot be null, so 0 is treated as "ignore"
-        if (update.getPrice() != 0) existing.setPrice(update.getPrice());
-        if (update.getStock() != 0) existing.setStock(update.getStock());
+        if (update.getDescription() != null)
+            existing.setDescription(update.getDescription());
+
+        if (update.getImageUrl() != null)
+            existing.setImageUrl(update.getImageUrl());
+
+        if (update.getCategory() != null && update.getCategory().getId() != null) {
+            Category category = categoryRepository.findById(update.getCategory().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+            existing.setCategory(category);
+        }
+
+        if (update.getPrice() > 0)
+            existing.setPrice(update.getPrice());
+
+        if (update.getStock() >= 0)
+            existing.setStock(update.getStock());
 
         return productRepository.save(existing);
     }
 
-    /**
-     * Delete product by ID.
-     */
-    public void delete(Integer id) {
+    // DELETE
+    public void delete(Long id) {
+
         if (!productRepository.existsById(id)) {
             throw new EntityNotFoundException("Product not found");
         }
+
         productRepository.deleteById(id);
     }
 
-    /**
-     * 
-     * Filter products using database queries.
-     */
+    // FILTER
     public List<Product> filter(String type, String value) {
 
         switch (type.toLowerCase()) {

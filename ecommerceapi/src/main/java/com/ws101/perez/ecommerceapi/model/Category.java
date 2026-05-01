@@ -14,27 +14,36 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 /**
- * Represents a product category in the system.
- *
- * A Category can have multiple Products (One-to-Many relationship).
- * This relationship is mapped by the 'category' field in the Product entity.
+ * Represents a product category in the ecommerce system.
+ * 
+ * A category groups related products such as Electronics, Audio, etc.
+ * 
+ * Relationship:
+ * One Category → Many Products
+ * This is mapped by the 'category' field in the Product entity.
  */
 @Entity
-@Table(name = "categories")
+@Table(name = "category") // ⚠️ match your actual DB table name
 public class Category {
 
+    /**
+     * Unique identifier for the category.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Name of the category (e.g., Electronics, Audio).
+     */
     private String name;
 
     /**
      * List of products that belong to this category.
-     * One Category → Many Products.
+     * Marked with @JsonIgnore to prevent infinite recursion in JSON.
      */
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore   // prevents infinite loop
+    @JsonIgnore
     private List<Product> products;
 
     public Category() {}
