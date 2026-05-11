@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Page</title>
+</head>
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<button onclick="deleteProduct()">Delete Product ID 10</button>
+
+<script>
+function deleteProduct() {
+    fetch("http://localhost:8080/api/v1/products/10", {
+        method: "DELETE",
+        credentials: "include"
+    })
+    .then(() => alert("Product deleted (if authorized)"));
+}
+</script>
+
+</body>
+</html>

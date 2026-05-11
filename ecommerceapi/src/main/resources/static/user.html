@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Page</title>
+</head>
+<body>
+
+<h2>Shopper Dashboard</h2>
+
+<button onclick="loadProducts()">View Products</button>
+
+<div id="products"></div>
+
+<script>
+function loadProducts() {
+    fetch("http://localhost:8080/api/v1/products")
+    .then(res => res.json())
+    .then(data => {
+        let html = "";
+        data.forEach(p => {
+            html += `
+                <p>
+                    ${p.name} - ₱${p.price}
+                    <button onclick="order()">Order</button>
+                </p>
+            `;
+        });
+        document.getElementById("products").innerHTML = html;
+    });
+}
+
+function order() {
+    fetch("http://localhost:8080/api/v1/orders", {
+        method: "POST",
+        credentials: "include"
+    })
+    .then(() => alert("Order placed (if logged in)"));
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+
+<h2>Register</h2>
+
+<input type="text" id="username" placeholder="Username">
+<br><br>
+
+<input type="password" id="password" placeholder="Password">
+<br><br>
+
+<select id="role">
+    <option value="USER">USER</option>
+    <option value="ADMIN">ADMIN</option>
+    <option value="SELLER">SELLER</option>
+</select>
+
+<br><br>
+
+<button onclick="register()">Register</button>
+
+<script>
+function register() {
+
+    fetch("http://localhost:8080/api/v1/auth/register", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            role: document.getElementById("role").value
+        })
+
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Registration successful!");
+        console.log(data);
+    })
+    .catch(error => {
+        alert("Registration failed");
+        console.error(error);
+    });
+}
+</script>
+
+</body>
+</html>
