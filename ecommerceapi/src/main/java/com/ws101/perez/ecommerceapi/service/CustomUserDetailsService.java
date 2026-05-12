@@ -2,6 +2,7 @@ package com.ws101.perez.ecommerceapi.service;
 
 import java.util.Collections;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,12 +25,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         var user = repository.findByUsername(username)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found: " + username));
+                        new UsernameNotFoundException(
+                                "User not found: " + username));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
-                user.getPassword(), // MUST be BCrypt encoded
-                Collections.singleton(() -> "ROLE_USER")
+                user.getPassword(),
+                Collections.singleton(
+                        new SimpleGrantedAuthority(
+                                "ROLE_" + user.getRole()
+                        )
+                )
         );
     }
 }

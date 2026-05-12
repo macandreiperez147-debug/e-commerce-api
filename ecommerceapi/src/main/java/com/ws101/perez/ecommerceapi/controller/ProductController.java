@@ -3,7 +3,18 @@ package com.ws101.perez.ecommerceapi.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ws101.perez.ecommerceapi.model.Product;
 import com.ws101.perez.ecommerceapi.service.ProductService;
@@ -19,19 +30,20 @@ public class ProductController {
         this.service = service;
     }
 
-    // GET all products
+    // PUBLIC - GET ALL PRODUCTS
     @GetMapping
     public ResponseEntity<List<Product>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 
-    // GET product by ID
+    // PUBLIC - GET PRODUCT BY ID
     @GetMapping("/{id}")
     public ResponseEntity<Product> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    // CREATE product
+    // ADMIN ONLY - CREATE PRODUCT
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody Product product) {
         Product created = service.create(product);
@@ -42,28 +54,31 @@ public class ProductController {
                 .body(created);
     }
 
-    // UPDATE product
+    // ADMIN ONLY - UPDATE PRODUCT
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@PathVariable Long id,
                                           @RequestBody Product product) {
         return ResponseEntity.ok(service.update(id, product));
     }
 
-    // PARTIAL UPDATE
+    // ADMIN ONLY - PATCH PRODUCT
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<Product> patch(@PathVariable Long id,
                                          @RequestBody Product product) {
         return ResponseEntity.ok(service.patch(id, product));
     }
 
-    // DELETE product
+    // ADMIN ONLY - DELETE PRODUCT (TASK REQUIREMENT)
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    // FILTER products
+    // PUBLIC - FILTER PRODUCTS
     @GetMapping("/filter")
     public ResponseEntity<List<Product>> filter(
             @RequestParam String filterType,

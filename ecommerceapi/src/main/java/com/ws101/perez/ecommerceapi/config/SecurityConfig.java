@@ -3,7 +3,7 @@ package com.ws101.perez.ecommerceapi.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -24,44 +25,39 @@ public class SecurityConfig {
 
         http
 
-            // CSRF ENABLED (LAB REQUIREMENT)
+            // CSRF: only exclude register (LAB requirement)
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/v1/auth/register")
             )
 
-            // AUTH RULES
+            // Return proper API response instead of redirects
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((req, res, authException) ->
+                        res.sendError(401)
+                )
+            )
+
             .authorizeHttpRequests(auth -> auth
 
-                // PUBLIC ENDPOINTS
-                .requestMatchers(HttpMethod.GET,
-                        "/api/v1/products/**").permitAll()
-
-                .requestMatchers(HttpMethod.POST,
-                        "/api/v1/auth/register").permitAll()
-
-                // LOGIN ACCESS
+                // PUBLIC
+                .requestMatchers("/csrf").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                 .requestMatchers("/login", "/error").permitAll()
 
-                // PROTECTED ENDPOINTS
-                .requestMatchers(HttpMethod.POST,
-                        "/api/v1/orders/**").authenticated()
+                // ADMIN ONLY (DELETE product)
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**")
+                    .hasRole("ADMIN")
 
-                .requestMatchers(HttpMethod.DELETE,
-                        "/api/v1/products/**").authenticated()
-
+                // EVERYTHING ELSE requires authentication
                 .anyRequest().authenticated()
             )
 
-            // FORM LOGIN (LAB REQUIRED)
-            .formLogin(form -> form
-                .defaultSuccessUrl("/api/v1/products", true)
-                .permitAll()
-            )
+            // Session login (JSESSIONID required)
+            .formLogin(form -> form.permitAll())
 
-            // LOGOUT
-            .logout(Customizer.withDefaults())
+            .logout(logout -> logout.permitAll())
 
-            // SESSION BASED AUTH
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             );
