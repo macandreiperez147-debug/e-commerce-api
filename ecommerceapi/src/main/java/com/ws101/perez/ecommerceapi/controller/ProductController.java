@@ -4,20 +4,13 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.ws101.perez.ecommerceapi.dto.CreateProductDto;
 import com.ws101.perez.ecommerceapi.model.Product;
 import com.ws101.perez.ecommerceapi.service.ProductService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -45,7 +38,16 @@ public class ProductController {
     // ADMIN ONLY - CREATE PRODUCT
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product) {
+    public ResponseEntity<Product> create(
+            @Valid @RequestBody CreateProductDto dto) {
+
+        Product product = new Product();
+
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setQuantity(dto.getQuantity());
+
         Product created = service.create(product);
 
         return ResponseEntity
@@ -57,24 +59,37 @@ public class ProductController {
     // ADMIN ONLY - UPDATE PRODUCT
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id,
-                                          @RequestBody Product product) {
+    public ResponseEntity<Product> update(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateProductDto dto) {
+
+        Product product = new Product();
+
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setQuantity(dto.getQuantity());
+
         return ResponseEntity.ok(service.update(id, product));
     }
 
     // ADMIN ONLY - PATCH PRODUCT
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<Product> patch(@PathVariable Long id,
-                                         @RequestBody Product product) {
+    public ResponseEntity<Product> patch(
+            @PathVariable Long id,
+            @RequestBody Product product) {
+
         return ResponseEntity.ok(service.patch(id, product));
     }
 
-    // ADMIN ONLY - DELETE PRODUCT (TASK REQUIREMENT)
+    // ADMIN ONLY - DELETE PRODUCT
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+
         service.delete(id);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -84,6 +99,8 @@ public class ProductController {
             @RequestParam String filterType,
             @RequestParam String filterValue) {
 
-        return ResponseEntity.ok(service.filter(filterType, filterValue));
+        return ResponseEntity.ok(
+                service.filter(filterType, filterValue)
+        );
     }
 }
