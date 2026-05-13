@@ -21,71 +21,94 @@ import jakarta.persistence.EntityNotFoundException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(EntityNotFoundException ex) {
+    public ResponseEntity<Map<String, Object>>
+    handleNotFound(EntityNotFoundException ex) {
 
         Map<String, Object> error = new HashMap<>();
+
         error.put("timestamp", LocalDateTime.now());
         error.put("status", 404);
         error.put("error", "NOT FOUND");
         error.put("message", ex.getMessage());
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(error);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException ex) {
+    public ResponseEntity<Map<String, Object>>
+    handleBadRequest(IllegalArgumentException ex) {
 
         Map<String, Object> error = new HashMap<>();
+
         error.put("timestamp", LocalDateTime.now());
         error.put("status", 400);
         error.put("error", "BAD REQUEST");
         error.put("message", ex.getMessage());
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
     }
 
+    // TASK 5 REQUIREMENT
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>>
+    handleValidation(MethodArgumentNotValidException ex) {
 
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("status", 400);
-        error.put("error", "VALIDATION ERROR");
+        Map<String, String> validationErrors = new HashMap<>();
 
-        String message = ex.getBindingResult()
+        ex.getBindingResult()
                 .getFieldErrors()
-                .stream()
-                .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .reduce((a, b) -> a + "; " + b)
-                .orElse("Validation error");
+                .forEach(error ->
+                        validationErrors.put(
+                                error.getField(),
+                                error.getDefaultMessage()
+                        )
+                );
 
-        error.put("message", message);
+        Map<String, Object> response = new HashMap<>();
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", 400);
+        response.put("errors", validationErrors);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleDatabase(DataIntegrityViolationException ex) {
+    public ResponseEntity<Map<String, Object>>
+    handleDatabase(DataIntegrityViolationException ex) {
 
         Map<String, Object> error = new HashMap<>();
+
         error.put("timestamp", LocalDateTime.now());
         error.put("status", 400);
         error.put("error", "DATABASE ERROR");
         error.put("message", "Data integrity violation");
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
     }
 
-    // ✅ SAFE fallback (DO NOT catch Exception.class in Spring Security apps)
+    // SAFE fallback
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
+    public ResponseEntity<Map<String, Object>>
+    handleRuntime(RuntimeException ex) {
 
         Map<String, Object> error = new HashMap<>();
+
         error.put("timestamp", LocalDateTime.now());
         error.put("status", 500);
         error.put("error", "INTERNAL SERVER ERROR");
         error.put("message", ex.getMessage());
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(error);
     }
 }
