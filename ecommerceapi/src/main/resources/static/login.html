@@ -1,45 +1,104 @@
-<<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 </head>
 <body>
 
-<h2>Login</h2>
+    <h1>Login</h1>
 
-<form method="POST" action="/login">
+    <form id="loginForm">
 
-    <input type="hidden"
-           id="csrfToken"
-           name="_csrf">
+        <input
+            type="text"
+            id="username"
+            placeholder="Username"
+            required
+        >
 
-    <input type="text"
-           name="username"
-           placeholder="Username"
-           required>
+        <br><br>
 
-    <br><br>
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+        >
 
-    <input type="password"
-           name="password"
-           placeholder="Password"
-           required>
+        <br><br>
 
-    <br><br>
+        <button type="submit">Login</button>
 
-    <button type="submit">Login</button>
+    </form>
 
-</form>
+    <p id="message"></p>
 
-<script>
+    <script>
 
-fetch('/csrf')
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById("csrfToken").value = data.token;
-    });
+        let csrfToken = "";
 
-</script>
+        // GET CSRF TOKEN FIRST
+        async function loadCsrfToken() {
+
+            const response = await fetch("http://localhost:8080/csrf", {
+                credentials: "include"
+            });
+
+            const data = await response.json();
+
+            csrfToken = data.token;
+        }
+
+        loadCsrfToken();
+
+        // LOGIN
+        document.getElementById("loginForm")
+            .addEventListener("submit", async (e) => {
+
+            e.preventDefault();
+
+            const username =
+                document.getElementById("username").value;
+
+            const password =
+                document.getElementById("password").value;
+
+            const params = new URLSearchParams();
+
+            params.append("username", username);
+            params.append("password", password);
+            params.append("_csrf", csrfToken);
+
+            const response = await fetch(
+                "http://localhost:8080/login",
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body: params
+                }
+            );
+
+            if (response.ok || response.redirected) {
+
+                document.getElementById("message")
+                    .innerText = "Login successful";
+
+                window.location.href = "products.html";
+
+            } else {
+
+                document.getElementById("message")
+                    .innerText = "Invalid login";
+            }
+        });
+
+    </script>
 
 </body>
 </html>

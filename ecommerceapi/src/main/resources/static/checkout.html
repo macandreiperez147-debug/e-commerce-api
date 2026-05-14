@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+</head>
+<body>
+
+    <h1>Checkout</h1>
+
+    <button onclick="createOrder()">
+        Create Order
+    </button>
+
+    <script>
+
+        async function createOrder() {
+
+            // GET CSRF TOKEN
+            const csrfResponse = await fetch(
+                "http://localhost:8080/csrf",
+                {
+                    credentials: "include"
+                }
+            );
+
+            const csrfData = await csrfResponse.json();
+
+            // CREATE ORDER
+            const response = await fetch(
+                "http://localhost:8080/api/v1/orders",
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "X-CSRF-TOKEN": csrfData.token
+                    }
+                }
+            );
+
+            const text = await response.text();
+
+            console.log(text);
+
+            alert(text);
+        }
+
+    </script>
+
+</body>
+</html>

@@ -1,25 +1,24 @@
 package com.ws101.perez.ecommerceapi.exception;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.persistence.EntityNotFoundException;
 
-/**
- * Global exception handler for REST API.
- * Returns structured JSON error responses.
- */
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
+    // 404 NOT FOUND
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, Object>>
     handleNotFound(EntityNotFoundException ex) {
@@ -36,6 +35,7 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
+    // 400 BAD REQUEST
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>>
     handleBadRequest(IllegalArgumentException ex) {
@@ -52,19 +52,19 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
-    // TASK 5 REQUIREMENT
+    // TASK 5 VALIDATION HANDLER
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>>
     handleValidation(MethodArgumentNotValidException ex) {
 
-        Map<String, String> validationErrors = new HashMap<>();
+        List<String> errors = new ArrayList<>();
 
         ex.getBindingResult()
                 .getFieldErrors()
                 .forEach(error ->
-                        validationErrors.put(
-                                error.getField(),
-                                error.getDefaultMessage()
+                        errors.add(
+                                "Field '" + error.getField()
+                                + "' " + error.getDefaultMessage()
                         )
                 );
 
@@ -72,13 +72,14 @@ public class GlobalExceptionHandler {
 
         response.put("timestamp", LocalDateTime.now());
         response.put("status", 400);
-        response.put("errors", validationErrors);
+        response.put("errors", errors);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 
+    // DATABASE ERRORS
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>>
     handleDatabase(DataIntegrityViolationException ex) {
@@ -95,7 +96,7 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
-    // SAFE fallback
+    // FALLBACK ERROR
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>>
     handleRuntime(RuntimeException ex) {
