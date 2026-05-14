@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>Checkout</title>
 </head>
 <body>
@@ -13,8 +15,29 @@
         Create Order
     </button>
 
+    <!-- FETCH WRAPPER -->
+    <script src="fetch-wrapper.js"></script>
+
     <script>
 
+        // PROTECTED ROUTE CHECK
+        async function checkAuth() {
+
+            const response = await apiFetch(
+                "http://localhost:8080/api/v1/orders"
+            );
+
+            // already redirected by wrapper
+            if (!response) {
+                return;
+            }
+
+            console.log("Authenticated");
+        }
+
+        checkAuth();
+
+        // CREATE ORDER
         async function createOrder() {
 
             // GET CSRF TOKEN
@@ -27,17 +50,23 @@
 
             const csrfData = await csrfResponse.json();
 
-            // CREATE ORDER
-            const response = await fetch(
+            // API REQUEST
+            const response = await apiFetch(
                 "http://localhost:8080/api/v1/orders",
                 {
                     method: "POST",
+
                     credentials: "include",
+
                     headers: {
                         "X-CSRF-TOKEN": csrfData.token
                     }
                 }
             );
+
+            if (!response) {
+                return;
+            }
 
             const text = await response.text();
 
