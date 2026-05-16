@@ -1,27 +1,35 @@
 package com.ws101.perez.ecommerceapi.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ws101.perez.ecommerceapi.model.Order;
+import com.ws101.perez.ecommerceapi.repository.OrderRepository;
 
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
 
-    // LAB REQUIREMENT: authenticated users only
-    @PostMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<String> createOrder() {
-        return ResponseEntity.ok("Order created successfully");
+    private final OrderRepository repository;
+
+    public OrderController(OrderRepository repository) {
+        this.repository = repository;
     }
 
-    // optional (still protected unless permitted elsewhere)
+    // GET all orders
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<String> getOrders() {
-        return ResponseEntity.ok("List of orders (placeholder)");
+    public List<Order> getOrders() {
+        return repository.findAll();
+    }
+
+    // CREATE order
+    @PostMapping
+    public Order createOrder(@RequestBody Order order) {
+        return repository.save(order);
     }
 }

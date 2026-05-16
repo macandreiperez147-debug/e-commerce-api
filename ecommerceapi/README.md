@@ -1,115 +1,81 @@
-# Ecommerce API - Spring Boot Project
+Ecommerce API - Spring Boot Project
+Project Overview
 
-## Project Overview
-This project is a simple RESTful Ecommerce API built using Spring Boot.  
-It manages products using in-memory storage (ArrayList) and demonstrates CRUD operations, filtering, validation, and global exception handling.
+This project is a RESTful Ecommerce API built using Spring Boot.
 
----
+It demonstrates:
 
-## Tech Stack
-- Java
-- Spring Boot
-- Spring Web
-- Spring Validation
-- Lombok
-- Gradle
+CRUD operations for products
+Input validation
+Session-based authentication
+Role-based authorization
+Secure REST API design
+Tech Stack
+Java
+Spring Boot
+Spring Web
+Spring Security
+Spring Validation
+Spring Data JPA
+MySQL
+Lombok
+Gradle
+Security Architecture
 
----
+This application uses session-based authentication provided by Spring Security.
 
-## How to Run the Application
+When a user logs in, the server authenticates the credentials and creates an HTTP session. A session ID (JSESSIONID) is generated and stored in a cookie on the client side.
 
-### 1. Clone the repository
-```bash
-git clone <your-repo-url>
+The browser automatically includes this cookie in every request. The server uses the session ID to identify the authenticated user and determine whether they are authenticated.
 
-API Endpoints Reference
+If the session is valid, access is granted. If the session is missing or invalid, access is denied with HTTP 401 Unauthorized or 403 Forbidden.
 
-Get All Products
-Method: GET
-URL: /api/v1/products
-Description: Retrieve all products
-Response: 200 OK
+Authentication state is stored on the server side, while the client only stores the session identifier.
 
-Get Product by ID
-Method: GET
-URL: /api/v1/products/{id}
-Description: Get a single product by ID
-Response: 200 OK / 404 Not Found
-
-Create Product
-Method: POST
-URL: /api/v1/products
-Description: Create a new product
-Response: 201 Created
-
-Sample Request:
-
+Validation Rules
+User
+Username: must be between 8 and 20 characters (required)
+Email: must be a valid email format (required)
+Password: must not be empty and is stored using BCrypt encryption
+Product
+Name: required
+Description: required
+Price: must be greater than 0
+Stock: must be 0 or higher
+Image URL: optional depending on implementation
+Order
+Must be created by an authenticated user
+Must reference valid product IDs
+Cannot be created without a valid session
+API Reference
+Public Endpoints
+POST /api/v1/auth/register → Create new user
+POST /login → Authenticate user and create session (JSESSIONID)
+GET /api/v1/products → Retrieve all products
+Protected Endpoints
+POST /api/v1/orders → Create order (requires authentication)
+GET /api/v1/orders → View user orders (requires authentication)
+Admin Endpoints
+DELETE /api/v1/products/{id} → Delete product (requires ADMIN role)
+Sample Request (Register User)
 {
-  "name": "Laptop",
-  "description": "Gaming laptop",
-  "price": 1200,
-  "category": "Electronics",
-  "stock": 5,
-  "imageUrl": "image.jpg"
+  "username": "andrei_perez",
+  "email": "andrei@example.com",
+  "password": "password123"
 }
-
-Update Product (PUT)
-Method: PUT
-URL: /api/v1/products/{id}
-Description: Replace entire product
-Response: 200 OK / 404 Not Found
-
-Partial Update (PATCH)
-Method: PATCH
-URL: /api/v1/products/{id}
-Description: Update specific fields
-Response: 200 OK / 404 Not Found
-
-Delete Product
-Method: DELETE
-URL: /api/v1/products/{id}
-Description: Delete product
-Response: 204 No Content / 404 Not Found
-
-Filter Products
-Method: GET
-URL: /api/v1/products/filter?filterType=category&filterValue=Electronics
-Description: Filter products by category or name
-Response: 200 OK
-Sample Response
+Sample Validation Error Response
 {
-  "id": 1,
-  "name": "Laptop",
-  "description": "Gaming laptop",
-  "price": 1200,
-  "category": "Electronics",
-  "stock": 5,
-  "imageUrl": "image.jpg"
+  "errors": [
+    "Username must be between 8 and 20 characters",
+    "Email is required"
+  ],
+  "status": 400
 }
-Error Responses
-404 Not Found
-{
-  "timestamp": "2026-04-24T12:00:00",
-  "status": 404,
-  "error": "NOT FOUND",
-  "message": "Product not found"
-}
-400 Bad Request (Validation Error)
-{
-  "timestamp": "2026-04-24T12:00:00",
-  "status": 400,
-  "error": "VALIDATION ERROR",
-  "message": "name: Product name is required;"
-}
-
 Known Limitations
-Uses in-memory storage (ArrayList) instead of a database
-Data resets when the application restarts
-No authentication or security layer implemented
-Designed for learning purposes only
+Uses MySQL/local database setup required
+No JWT authentication (session-based only)
+Frontend is basic HTML only
+Author
 
-## Author
-## Co-authored-by: Angelica Naza
-Name: Mac Andrei Perez
-Course: WS101
-Section: IT-2B
+Mac Andrei Perez
+WS101 - IT2B

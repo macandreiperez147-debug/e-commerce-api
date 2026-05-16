@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Orders</title>
+</head>
+<body>
+    <h2>My Orders (Protected Page)</h2>
+
+    <button onclick="loadOrders()">Load Orders</button>
+
+    <pre id="output"></pre>
+
+    <script>
+        async function loadOrders() {
+            try {
+                const response = await fetch("http://localhost:8080/api/v1/orders", {
+                    method: "GET",
+                    credentials: "include" // IMPORTANT for session cookie
+                });
+
+                const data = await response.json();
+
+                document.getElementById("output").textContent =
+                    JSON.stringify(data, null, 2);
+
+            } catch (error) {
+                document.getElementById("output").textContent =
+                    "Error: Not authorized or not logged in";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,6 +1,8 @@
 package com.ws101.perez.ecommerceapi.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public class CreateProductDto {
@@ -11,11 +13,13 @@ public class CreateProductDto {
     @NotBlank(message = "Product description is required")
     private String description;
 
-    @Positive(message = "Price must be positive")
-    private double price;
+    @NotNull(message = "Price is required")
+    @Positive(message = "Price must be greater than 0")
+    private Double price;
 
-    @Positive(message = "Quantity must be positive")
-    private int quantity;
+    @NotNull(message = "Stock is required")
+    @Min(value = 0, message = "Stock cannot be negative")
+    private Integer quantity;
 
     public String getName() {
         return name;
@@ -33,19 +37,19 @@ public class CreateProductDto {
         this.description = description;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 }

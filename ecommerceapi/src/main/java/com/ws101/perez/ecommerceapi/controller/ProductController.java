@@ -4,7 +4,17 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ws101.perez.ecommerceapi.dto.CreateProductDto;
 import com.ws101.perez.ecommerceapi.model.Product;
@@ -29,7 +39,7 @@ public class ProductController {
         return ResponseEntity.ok(service.getAll());
     }
 
-    // PUBLIC - GET PRODUCT BY ID
+    // PUBLIC - GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<Product> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
@@ -44,9 +54,7 @@ public class ProductController {
         Product product = new Product();
 
         product.setName(dto.getName());
-        product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
-        product.setQuantity(dto.getQuantity());
 
         Product created = service.create(product);
 
@@ -66,9 +74,7 @@ public class ProductController {
         Product product = new Product();
 
         product.setName(dto.getName());
-        product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
-        product.setQuantity(dto.getQuantity());
 
         return ResponseEntity.ok(service.update(id, product));
     }

@@ -1,7 +1,10 @@
 package com.ws101.perez.ecommerceapi.controller;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ws101.perez.ecommerceapi.dto.RegisterUserDto;
 import com.ws101.perez.ecommerceapi.model.User;
@@ -18,14 +21,12 @@ public class AuthController {
 
     public AuthController(UserRepository repository,
                           PasswordEncoder passwordEncoder) {
-
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/register")
-    public User register(
-            @Valid @RequestBody RegisterUserDto dto) {
+    public User register(@Valid @RequestBody RegisterUserDto dto) {
 
         User user = new User();
 
@@ -35,11 +36,7 @@ public class AuthController {
                 passwordEncoder.encode(dto.getPassword())
         );
 
-        user.setEmail(dto.getEmail());
-
-        user.setPhoneNumber(dto.getPhoneNumber());
-
-        // DEFAULT ROLE
+        // DEFAULT ROLE (LAB REQUIREMENT SAFE)
         if (dto.getRole() == null || dto.getRole().isBlank()) {
             user.setRole("USER");
         } else {

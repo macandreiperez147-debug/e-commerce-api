@@ -14,50 +14,60 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    /**
+     * Password encoder using BCrypt hashing.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Main Spring Security configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
 
         http
 
-            // CSRF: only exclude register (LAB requirement)
+            // CSRF protection
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/v1/auth/register")
+                .ignoringRequestMatchers("/api/v1/auth/register", "/api/v1/products/**")
             )
 
-            // Return proper API response instead of redirects
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, authException) ->
-                        res.sendError(401)
-                )
-            )
-
+            // Authorization rules
             .authorizeHttpRequests(auth -> auth
 
-                // PUBLIC
-                .requestMatchers("/csrf").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
+                // Public endpoints
                 .requestMatchers("/login", "/error").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
 
-                // ADMIN ONLY (DELETE product)
+                // Admin-only endpoints
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**")
                     .hasRole("ADMIN")
 
-                // EVERYTHING ELSE requires authentication
+                // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
 
-            // Session login (JSESSIONID required)
+            // Return 401 for API requests only
+            .exceptionHandling(ex -> ex
+                .defaultAuthenticationEntryPointFor(
+                    (req, res, authException) ->
+                        res.sendError(401, "Unauthorized"),
+                    request -> request.getRequestURI().startsWith("/api/")
+                )
+            )
+
+            // Default Spring Security login page
             .formLogin(form -> form.permitAll())
 
+            // Logout support
             .logout(logout -> logout.permitAll())
 
+            // Session-based authentication
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             );

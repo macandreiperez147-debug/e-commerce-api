@@ -8,16 +8,15 @@ import jakarta.validation.constraints.Size;
 public class RegisterUserDto {
 
     @NotBlank(message = "Username is required")
-    @Size(min = 8, max = 20,
-          message = "Username must be between 8 and 20 characters")
+    @Size(min = 8, max = 20, message = "Username must be between 8 and 20 characters")
     private String username;
 
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
-    @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
+    @Email(message = "Please provide a valid email address")
     private String email;
 
     @Pattern(
@@ -26,7 +25,8 @@ public class RegisterUserDto {
     )
     private String phoneNumber;
 
-    private String role;
+    // Optional: default role if not provided
+    private String role = "USER";
 
     public String getUsername() {
         return username;
