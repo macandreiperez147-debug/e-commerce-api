@@ -28,8 +28,15 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    // IMPORTANT: store WITHOUT ROLE_ prefix
     @Column(nullable = false)
-    private String role = "USER"; // DEFAULT ROLE FIX
+    private String role = "USER";
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String phoneNumber;
 
     public User() {}
 
@@ -37,7 +44,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
+        return List.of(
+                new SimpleGrantedAuthority("ROLE_" + role)
+        );
     }
 
     @Override
@@ -51,16 +60,24 @@ public class User implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 
     // GETTERS & SETTERS
 
@@ -84,7 +101,28 @@ public class User implements UserDetails {
         return role;
     }
 
+    // IMPORTANT FIX: normalize role input
     public void setRole(String role) {
-        this.role = role;
+        if (role == null || role.isBlank()) {
+            this.role = "USER";
+        } else {
+            this.role = role.replace("ROLE_", "");
+        }
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }
